@@ -6,6 +6,7 @@
 
 
 import {Promise} from 'es6-promise';
+import 'babel-polyfill';
 
 import bowser from 'bowser';
 import * as bitcoin from 'bitcoinjs-lib-zcash';
@@ -1378,7 +1379,23 @@ let requiredFirmware = '1.3.4';
 
 function waitForFirstDevice(list) {
     let res;
-    if (!(list.hasDeviceOrUnacquiredDevice())) {
+
+    if (list.unreadableHidDevice()) {
+        res = Promise.reject(NO_TRANSPORT);
+    } else if (!(list.hasDeviceOrUnacquiredDevice())) {
+        const webusbButton = document.getElementById('webusb_button');
+        const alert = document.getElementById('alert_connect');
+        if (list.requestNeeded) {
+            alert.classList.add('webusb');
+            // webusbButton.style.display = 'block';
+            webusbButton.onclick = function() {
+                list.requestDevice()
+                webusbButton.onclick = null;
+            }
+        } else {
+            alert.classList.remove('webusb');
+            // webusbButton.style.display = 'none';
+        }
         res = Promise.reject(NO_CONNECTED_DEVICES);
     } else {
         res = list.acquireFirstDevice(true)
