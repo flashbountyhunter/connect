@@ -43,4 +43,4 @@ node_modules:
 	yarn
 
 submodules:
-	git submodule update --init
+	git submodule update --init --remote
